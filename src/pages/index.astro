@@ -16,34 +16,45 @@ import Layout from '../layouts/Layout.astro';
     <div class="quiz-step active" data-step="1">
       <h2>Who is it for?</h2>
       <div class="options">
-        <button type="button" class="card-option recipient-btn" data-value="Partner"><span class="icon">❤️</span> Partner</button>
-        <button type="button" class="card-option recipient-btn" data-value="Parent"><span class="icon">🏠</span> Parent</button>
-        <button type="button" class="card-option recipient-btn" data-value="Friend"><span class="icon">🍻</span> Friend</button>
-        <button type="button" class="card-option recipient-btn" data-value="Colleague"><span class="icon">💼</span> Colleague</button>
-        <button type="button" class="card-option recipient-btn" data-value="Someone who has everything"><span class="icon">🎁</span> Someone who has everything</button>
+        <button type="button" class="card-option recipient-btn" data-value="Partner"><span class="checkmark">✓</span><span class="icon">❤️</span> Partner</button>
+        <button type="button" class="card-option recipient-btn" data-value="Parent"><span class="checkmark">✓</span><span class="icon">🏠</span> Parent</button>
+        <button type="button" class="card-option recipient-btn" data-value="Friend"><span class="checkmark">✓</span><span class="icon">🍻</span> Friend</button>
+        <button type="button" class="card-option recipient-btn" data-value="Colleague"><span class="checkmark">✓</span><span class="icon">💼</span> Colleague</button>
+        <button type="button" class="card-option recipient-btn" data-value="Someone who has everything"><span class="checkmark">✓</span><span class="icon">🎁</span> Someone who has everything</button>
       </div>
     </div>
 
     <div class="quiz-step" data-step="2" hidden>
       <h2>What do they love?</h2>
+      <p class="intro">Tick any that apply, or type your own.</p>
+      <div class="pill-group" id="interestPills">
+        <button type="button" class="pill" data-value="Skincare">Skincare</button>
+        <button type="button" class="pill" data-value="Travel">Travel</button>
+        <button type="button" class="pill" data-value="Gaming">Gaming</button>
+        <button type="button" class="pill" data-value="Coffee">Coffee</button>
+        <button type="button" class="pill" data-value="Reading">Reading</button>
+        <button type="button" class="pill" data-value="Fitness">Fitness</button>
+        <button type="button" class="pill" data-value="Music">Music</button>
+        <button type="button" class="pill" data-value="Cooking">Cooking</button>
+      </div>
       <input id="interests" type="text" placeholder="e.g., skincare, gaming, coffee, travelling" maxlength="200" />
     </div>
 
     <div class="quiz-step" data-step="3" hidden>
       <h2>What's the budget?</h2>
       <div class="options">
-        <button type="button" class="option-btn budget-btn" data-value="Under £15">Under £15</button>
-        <button type="button" class="option-btn budget-btn" data-value="£15–£30">£15–£30</button>
-        <button type="button" class="option-btn budget-btn" data-value="£30–£50">£30–£50</button>
-        <button type="button" class="option-btn budget-btn" data-value="£50+">£50+</button>
+        <button type="button" class="option-btn budget-btn" data-value="Under £15"><span class="tick">✓</span> Under £15</button>
+        <button type="button" class="option-btn budget-btn" data-value="£15–£30"><span class="tick">✓</span> £15–£30</button>
+        <button type="button" class="option-btn budget-btn" data-value="£30–£50"><span class="tick">✓</span> £30–£50</button>
+        <button type="button" class="option-btn budget-btn" data-value="£50+"><span class="tick">✓</span> £50+</button>
       </div>
     </div>
 
     <div class="quiz-step" data-step="4" hidden>
       <h2>Practical or Luxury?</h2>
       <div class="options">
-        <button type="button" class="card-option style-btn" data-value="Practical & Useful"><span class="icon">🛠️</span> Practical & Useful</button>
-        <button type="button" class="card-option style-btn" data-value="A Little Luxury"><span class="icon">✨</span> A Little Luxury</button>
+        <button type="button" class="card-option style-btn" data-value="Practical & Useful"><span class="checkmark">✓</span><span class="icon">🛠️</span> Practical & Useful</button>
+        <button type="button" class="card-option style-btn" data-value="A Little Luxury"><span class="checkmark">✓</span><span class="icon">✨</span> A Little Luxury</button>
       </div>
     </div>
 
@@ -53,6 +64,7 @@ import Layout from '../layouts/Layout.astro';
       <button type="button" id="nextBtn">Next</button>
       <button type="button" id="findBtn" hidden>Find My Gift</button>
     </div>
+    <p class="error-msg" id="errorMsg" hidden>Please select an option to continue.</p>
   </section>
 
   <div id="recommendation-results"></div>
@@ -69,6 +81,7 @@ import Layout from '../layouts/Layout.astro';
   <script is:inline>
   (function () {
     var quizData = { recipient: '', interests: '', budget: '', style: '' };
+    var selectedPills = [];
     var currentStep = 1;
     var totalSteps = 4;
     var progress = document.getElementById('progress');
@@ -77,6 +90,8 @@ import Layout from '../layouts/Layout.astro';
     var nextBtn = document.getElementById('nextBtn');
     var findBtn = document.getElementById('findBtn');
     var results = document.getElementById('recommendation-results');
+    var errorMsg = document.getElementById('errorMsg');
+    var interestsInput = document.getElementById('interests');
 
     function showStep(n) {
       currentStep = n;
@@ -90,16 +105,19 @@ import Layout from '../layouts/Layout.astro';
       if (backBtn) backBtn.hidden = (n === 1);
       if (nextBtn) nextBtn.hidden = (n === totalSteps);
       if (findBtn) findBtn.hidden = (n !== totalSteps);
+      if (errorMsg) errorMsg.hidden = true;
+      var quiz = document.getElementById('quiz');
+      if (quiz) { quiz.classList.remove('shake'); }
     }
 
     function readStep(n) {
       if (n === 1) {
-        var r = document.querySelector('input[name="recipient"]:checked');
-        quizData.recipient = r ? r.value : '';
+        var r = document.querySelector('.recipient-btn.selected');
+        quizData.recipient = r ? r.getAttribute('data-value') : '';
         return !!quizData.recipient;
       }
       if (n === 2) {
-        quizData.interests = (document.getElementById('interests').value || '').trim();
+        quizData.interests = (interestsInput.value || '').trim();
         return quizData.interests.length > 0;
       }
       if (n === 3) return quizData.budget.length > 0;
@@ -111,8 +129,6 @@ import Layout from '../layouts/Layout.astro';
       b.addEventListener('click', function () {
         document.querySelectorAll('.recipient-btn').forEach(function (x) { x.classList.remove('selected'); });
         b.classList.add('selected');
-        var radio = b.querySelector('input');
-        if (radio) radio.checked = true;
         quizData.recipient = b.getAttribute('data-value');
       });
     });
@@ -130,9 +146,27 @@ import Layout from '../layouts/Layout.astro';
         quizData.style = b.getAttribute('data-value');
       });
     });
+    document.querySelectorAll('.pill').forEach(function (p) {
+      p.addEventListener('click', function () {
+        var v = p.getAttribute('data-value');
+        if (p.classList.contains('selected')) {
+          p.classList.remove('selected');
+          selectedPills = selectedPills.filter(function (x) { return x !== v; });
+        } else {
+          p.classList.add('selected');
+          selectedPills.push(v);
+        }
+        interestsInput.value = selectedPills.join(', ');
+      });
+    });
 
     if (nextBtn) nextBtn.addEventListener('click', function () {
-      if (!readStep(currentStep)) { alert('Please make a selection.'); return; }
+      if (!readStep(currentStep)) {
+        if (errorMsg) errorMsg.hidden = false;
+        var quiz = document.getElementById('quiz');
+        if (quiz) { quiz.classList.remove('shake'); void quiz.offsetWidth; quiz.classList.add('shake'); }
+        return;
+      }
       if (currentStep < totalSteps) showStep(currentStep + 1);
     });
     if (backBtn) backBtn.addEventListener('click', function () {
@@ -142,7 +176,12 @@ import Layout from '../layouts/Layout.astro';
     function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]); }); }
 
     async function findGifts() {
-      if (!readStep(4)) { alert('Please choose Practical or Luxury.'); return; }
+      if (!readStep(4)) {
+        if (errorMsg) errorMsg.hidden = false;
+        var quiz = document.getElementById('quiz');
+        if (quiz) { quiz.classList.remove('shake'); void quiz.offsetWidth; quiz.classList.add('shake'); }
+        return;
+      }
       var query = 'Budget: ' + quizData.budget + '. Recipient: ' + quizData.recipient + '. Interests: ' + quizData.interests + '. Style: ' + quizData.style + '.';
       if (results) results.innerHTML = '<p class="loading"><span class="spinner"></span>Consulting Santa\'s elves...</p>';
       try {

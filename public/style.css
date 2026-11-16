@@ -94,6 +94,12 @@ button:disabled { opacity: 0.5; }
 .loading { display: flex; align-items: center; gap: 0.5rem; color: var(--gold-soft); }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
+.shake { animation: shake 0.4s ease; }
+.error-msg { color: #fca5a5; font-size: 0.85rem; margin-top: 0.5rem; }
+.pill { min-height: 40px; padding: 0.5rem 0.85rem; border: 1px solid var(--gold); border-radius: 999px; background: var(--bg); color: var(--text-on-bg); cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; }
+.pill.selected { background: var(--cta); color: #fff; border-color: var(--cta); }
+.pill-group { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.5rem 0 0.75rem; }
 .fade-in { animation: fadeUp 0.4s ease; }
 .card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
 .card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.25); }

@@ -1,0 +1,11 @@
+# Giftmas
+
+> AI-powered UK gift recommendation service. Enter a budget, recipient, and interests to get personalized gift ideas from Amazon UK.
+
+## Core Pages
+- [Homepage](https://giftmas.uk/): The AI gift finder quiz.
+- [Secret Santa Gifts](https://giftmas.uk/secret-santa/): Curated gifts under £15 for UK Secret Santa.
+- [Gifts for Girlfriend](https://giftmas.uk/gifts-for-girlfriend/): Skincare, travel, and luxury gift ideas.
+
+## How It Works
+Giftmas uses a guided quiz to understand the recipient's interests, budget, and style. The AI then generates 3 specific gift recommendations with direct Amazon UK search links. All links are affiliate links (tag: giftmas00-21).

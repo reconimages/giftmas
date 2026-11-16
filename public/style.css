@@ -47,6 +47,7 @@ h3 { font-size: clamp(1.1rem, 0.95rem + 0.5vw, 1.3rem); }
 p { margin: 0 0 clamp(0.5rem, 1vw, 0.75rem); }
 .wrap { max-width: 720px; margin: 0 auto; padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem) clamp(2rem, 4vw, 3rem); position: relative; z-index: 1; }
 .hero { position: relative; padding: clamp(1.5rem, 3vw, 2.5rem) 0 clamp(1rem, 2vw, 1.5rem); text-align: center; }
+.hero h1 { margin-bottom: clamp(1rem, 2vw, 1.5rem); }
 .hero::before {
   content: '';
   position: absolute;

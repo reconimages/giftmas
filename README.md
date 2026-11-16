@@ -2,6 +2,10 @@
 
 Astro static site. Two pages only in this phase: `/secret-santa` (£10–£15 Secret Santa) and `/gifts-for-girlfriend` (skincare/beauty lead). No Amazon API of any kind — plain amazon.co.uk URLs with `?tag=giftmas00-21`.
 
+## Live
+
+Deployed to Cloudflare Pages: https://giftmas-2w4.pages.dev (custom domain giftmas.uk pending DNS validation).
+
 ## Local dev
 
 ```bash

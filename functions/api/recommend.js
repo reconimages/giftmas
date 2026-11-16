@@ -4,8 +4,9 @@ export async function onRequestPost(context) {
   const { request, env } = context;
   let input;
   try { input = await request.json(); } catch { return json({ error: 'Body must be JSON with a "sentence" string.' }, 400); }
-  const sentence = String(input?.sentence || '').trim();
-  const page = String(input?.page || '');
+  const sentence = String(input?.sentence || input?.query || '').trim();
+  let page = String(input?.page || '');
+  if (!page) page = /girlfriend|skincare|beauty|\bher\b/i.test(sentence) ? 'gifts-for-girlfriend' : 'secret-santa';
   if (!sentence || sentence.length > 300) return json({ error: 'Sentence is empty or over 300 characters.' }, 400);
   if (!PAGES[page]) return json({ error: 'Unknown page. Use "secret-santa" or "gifts-for-girlfriend".' }, 400);
 
@@ -50,7 +51,9 @@ const SYSTEM = [
 
 function parseLocal(sentence, page) {
   const lower = sentence.toLowerCase();
-  const budgetMatch = sentence.match(/£\s*(\d+(?:\.\d{2})?)/) || lower.match(/(\d+(?:\.\d{2})?)\s*(?:pounds|gbp)/);
+  const budgetMatch = sentence.match(/£\s*(\d+(?:\.\d{2})?)/)
+    || sentence.match(/(\d+(?:\.\d{2})?)\s*(?:pounds|gbp|budget)/i)
+    || sentence.match(/budget\D{0,6}(\d+(?:\.\d{2})?)/i);
   const budget = budgetMatch ? Number(budgetMatch[1]) : null;
   const recipientMatch = sentence.match(/\b(girlfriend|wife|partner|friend|mum|mother|dad|father|sister|brother|teenager|teen|him|her|them)\b/i);
   const interestWords = (lower.match(/skincare|beauty|makeup|perfume|candle|cosy|socks|knit|pyjamas|chocolate|tea|coffee|home|travel|reading|gardening|fitness|music|films?|crafts?|tech|gaming|dogs?|cats?|football|rugby|yoga|cooking/g) || []);

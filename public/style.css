@@ -1,5 +1,9 @@
 /* Giftmas — premium Christmas theme, mobile-first, fluid */
 :root {
+  --evergreen: #0B3D2E;
+  --red: #C0392B;
+  --gold: #C9A227;
+  --off-white: #FDF8F0;
   --bg-1: #07291F;
   --bg-2: #0B3D2E;
   --bg-3: #1a1a3e;
@@ -18,15 +22,15 @@
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
   line-height: 1.55;
-  background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 45%, var(--bg-3) 100%);
-  background-attachment: fixed;
-  color: var(--text-on-bg);
+  background: linear-gradient(135deg, #061a14 0%, #0B3D2E 100%);
+  color: #FDF8F0;
   min-height: 100vh;
   position: relative;
 }
+h1, h2, h3 { font-family: 'Playfair Display', serif; }
 body::before {
   content: '';
   position: fixed;
@@ -102,6 +106,61 @@ p { margin: 0 0 clamp(0.5rem, 1vw, 0.75rem); }
 .pill-group { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.5rem 0 0.75rem; }
 footer { margin-top: clamp(1.5rem, 3vw, 2.5rem); border-top: 1px solid var(--gold); padding-top: clamp(0.75rem, 1.5vw, 1rem); color: var(--gold-soft); font-size: 0.8rem; }
 a { color: var(--gold); }
+/* Force-applied premium classes (user spec) */
+.quiz-container {
+  background: rgba(253, 248, 240, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  margin: 2rem auto;
+}
+.option-card {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 2px solid rgba(253, 248, 240, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: transparent;
+  color: var(--off-white);
+  margin-bottom: 1rem;
+}
+.option-card input[type="radio"] { display: none; }
+.option-card:has(input:checked) {
+  border-color: var(--gold);
+  background: rgba(201, 162, 39, 0.1);
+  box-shadow: 0 0 15px rgba(201, 162, 39, 0.2);
+}
+.option-card:has(input:checked)::after {
+  content: '✓';
+  color: var(--gold);
+  font-weight: bold;
+  margin-left: auto;
+  font-size: 1.2rem;
+}
+.btn-primary {
+  background: var(--red);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+  width: 100%;
+  box-shadow: 0 4px 15px rgba(192, 57, 43, 0.4);
+}
+.btn-primary:hover {
+  background: #a93226;
+  transform: translateY(-2px);
+}
 .top-nav { margin: 0 0 clamp(0.5rem, 1vw, 0.75rem); font-size: 0.85rem; }
 .top-nav a { color: var(--gold-soft); text-decoration: none; }
 .top-nav a:hover { color: var(--gold); }

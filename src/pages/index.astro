@@ -9,18 +9,18 @@ import Layout from '../layouts/Layout.astro';
     <p class="disclosure">Powered by AI. Links earn us a commission. As an Amazon Associate, I earn from qualifying purchases.</p>
   </header>
 
-  <section class="quiz" id="quiz">
+  <section class="quiz-container" id="quiz">
     <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     <p class="progress" id="progress">Step 1 of 4</p>
 
     <div class="quiz-step active" data-step="1">
       <h2>Who is it for?</h2>
       <div class="options">
-        <button type="button" class="card-option recipient-btn" data-value="Partner"><span class="checkmark">✓</span><span class="icon">❤️</span> Partner</button>
-        <button type="button" class="card-option recipient-btn" data-value="Parent"><span class="checkmark">✓</span><span class="icon">🏠</span> Parent</button>
-        <button type="button" class="card-option recipient-btn" data-value="Friend"><span class="checkmark">✓</span><span class="icon">🍻</span> Friend</button>
-        <button type="button" class="card-option recipient-btn" data-value="Colleague"><span class="checkmark">✓</span><span class="icon">💼</span> Colleague</button>
-        <button type="button" class="card-option recipient-btn" data-value="Someone who has everything"><span class="checkmark">✓</span><span class="icon">🎁</span> Someone who has everything</button>
+        <label class="option-card"><input type="radio" name="recipient" value="Partner" /> <span class="icon">❤️</span> Partner</label>
+        <label class="option-card"><input type="radio" name="recipient" value="Parent" /> <span class="icon">🏠</span> Parent</label>
+        <label class="option-card"><input type="radio" name="recipient" value="Friend" /> <span class="icon">🍻</span> Friend</label>
+        <label class="option-card"><input type="radio" name="recipient" value="Colleague" /> <span class="icon">💼</span> Colleague</label>
+        <label class="option-card"><input type="radio" name="recipient" value="Someone who has everything" /> <span class="icon">🎁</span> Someone who has everything</label>
       </div>
     </div>
 
@@ -53,8 +53,8 @@ import Layout from '../layouts/Layout.astro';
     <div class="quiz-step" data-step="4" hidden>
       <h2>Practical or Luxury?</h2>
       <div class="options">
-        <button type="button" class="card-option style-btn" data-value="Practical & Useful"><span class="checkmark">✓</span><span class="icon">🛠️</span> Practical & Useful</button>
-        <button type="button" class="card-option style-btn" data-value="A Little Luxury"><span class="checkmark">✓</span><span class="icon">✨</span> A Little Luxury</button>
+        <label class="option-card"><input type="radio" name="style" value="Practical & Useful" /> <span class="icon">🛠️</span> Practical & Useful</label>
+        <label class="option-card"><input type="radio" name="style" value="A Little Luxury" /> <span class="icon">✨</span> A Little Luxury</label>
       </div>
     </div>
 
@@ -112,8 +112,8 @@ import Layout from '../layouts/Layout.astro';
 
     function readStep(n) {
       if (n === 1) {
-        var r = document.querySelector('.recipient-btn.selected');
-        quizData.recipient = r ? r.getAttribute('data-value') : '';
+        var r = document.querySelector('input[name="recipient"]:checked');
+        quizData.recipient = r ? r.value : '';
         return !!quizData.recipient;
       }
       if (n === 2) {
@@ -121,29 +121,19 @@ import Layout from '../layouts/Layout.astro';
         return quizData.interests.length > 0;
       }
       if (n === 3) return quizData.budget.length > 0;
-      if (n === 4) return quizData.style.length > 0;
+      if (n === 4) {
+        var s = document.querySelector('input[name="style"]:checked');
+        quizData.style = s ? s.value : '';
+        return !!quizData.style;
+      }
       return true;
     }
 
-    document.querySelectorAll('.recipient-btn').forEach(function (b) {
-      b.addEventListener('click', function () {
-        document.querySelectorAll('.recipient-btn').forEach(function (x) { x.classList.remove('selected'); });
-        b.classList.add('selected');
-        quizData.recipient = b.getAttribute('data-value');
-      });
-    });
     document.querySelectorAll('.budget-btn').forEach(function (b) {
       b.addEventListener('click', function () {
         document.querySelectorAll('.budget-btn').forEach(function (x) { x.classList.remove('selected'); });
         b.classList.add('selected');
         quizData.budget = b.getAttribute('data-value');
-      });
-    });
-    document.querySelectorAll('.style-btn').forEach(function (b) {
-      b.addEventListener('click', function () {
-        document.querySelectorAll('.style-btn').forEach(function (x) { x.classList.remove('selected'); });
-        b.classList.add('selected');
-        quizData.style = b.getAttribute('data-value');
       });
     });
     document.querySelectorAll('.pill').forEach(function (p) {

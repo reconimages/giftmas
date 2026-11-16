@@ -69,8 +69,8 @@ import Layout from '../layouts/Layout.astro';
   <div id="recommendation-results"></div>
 
   <div class="category-section">
-    <h2>Or browse popular categories 🎁</h2>
-    <select id="categorySelect" class="category-select">
+    <h3>Or browse popular categories 🎁</h3>
+    <select id="category-dropdown" class="category-select">
       <option value="" disabled selected>Select a category...</option>
       <option value="https://www.amazon.co.uk/s?k=stocking+fillers+under+10&tag=giftmas00-21">Stocking Fillers (Under £10)</option>
       <option value="https://www.amazon.co.uk/s?k=secret+santa+gifts+under+15&tag=giftmas00-21">Secret Santa (Under £15)</option>
@@ -97,7 +97,7 @@ import Layout from '../layouts/Layout.astro';
   </script>
   <script is:inline>
   (function () {
-    var sel = document.getElementById('categorySelect');
+    var sel = document.getElementById('category-dropdown');
     if (sel) {
       sel.addEventListener('change', function () {
         var url = sel.value;

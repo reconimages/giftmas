@@ -1,4 +1,4 @@
-// Cloudflare Pages Function: single server-side AI endpoint.
+// Cloudflare Pages Function: single server-side model endpoint.
 // No Amazon API of any kind. Key comes from a Pages environment variable.
 export async function onRequestPost(context) {
   const { request, env } = context;
@@ -142,7 +142,7 @@ async function aiRecommend(sentence, page, modelKey, modelBase, modelName) {
     if (!res.ok) throw new Error(`model HTTP ${res.status}`);
     const data = await res.json();
     let text = data.choices?.[0]?.message?.content || '';
-    console.log('AI raw response:', text);
+    console.log('Model raw response:', text);
     text = text.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
     let parsed;
     const aStart = text.indexOf('[');

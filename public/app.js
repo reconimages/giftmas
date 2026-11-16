@@ -22,7 +22,7 @@ if (form) {
       if (!res.ok) throw new Error(data.error || 'Server error');
       render(data);
     } catch (err) {
-      out.innerHTML = `<p class="error">AI engine unavailable (${esc(err.message)}). Try again in a moment.</p>`;
+      out.innerHTML = `<p class="error">We couldn't find matches right now, please try again.</p>`;
     }
   });
 }
@@ -34,7 +34,7 @@ function render(data) {
   if (c.recipient) chips.push(c.recipient);
   (c.interests || []).forEach((i) => chips.push(i));
   const chipsHtml = chips.length ? '<ul class="chips">' + chips.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '';
-  const label = data.source === 'model' ? 'Parsed from your sentence:' : 'Local picks (AI key not set):';
+  const label = data.source === 'model' ? 'Parsed from your sentence:' : 'Local picks:';
   const cards = (data.recommendations || []).map((r) => {
     const title = r.title || r.productType || r.product_type || '';
     const reason = r.reason || '';

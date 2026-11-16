@@ -33,21 +33,7 @@ const PAGES = {
   'gifts-for-girlfriend': 'Gifts for girlfriend, lead sub-theme skincare/beauty',
 };
 
-const SYSTEM = [
-  'You power the recommendation box on a UK Christmas gift site (Amazon UK affiliate tag giftmas00-21).',
-  'Reply with a single JSON object, no prose, no markdown fences.',
-  'Hard rules:',
-  '- "recommendations" must hold 2 or 3 items, never more.',
-  '- Never name brands, specific products, ASINs, or star ratings. Recommend product categories only.',
-  '- Never state a hard price.',
-  '- Never recommend gift cards, video games, or games consoles.',
-  '- Prefer these commission categories in order: Luxury Beauty 6%, Clothing & Accessories 6%, Home & Kitchen 5%, Standard Beauty 4%.',
-  '- Every reason must quote or clearly reuse words the user wrote about the recipient.',
-  '- For each recommendation, provide a "searchTerm": a highly specific 3-5 word Amazon UK search phrase that would return the best results (e.g. "gaming mouse pad under 30", "funny gaming mug").',
-  '- Use UK English.',
-  'Output shape:',
-  '{"conditions":{"budget_gbp":null,"recipient":null,"interests":[]},"recommendations":[{"title":"...","reason":"...","searchTerm":"..."}]}',
-].join('\n');
+const SYSTEM = 'You are an expert UK gift buyer. The user will provide a budget, a recipient, and their interests. You must recommend exactly 3 highly specific gift ideas. Do not recommend generic items like "a gift card" or "a mug". Each recommendation must have a specific search term that will yield the best results on Amazon UK. Return ONLY a valid JSON array with exactly this structure, no markdown, no backticks: [{"title": "String", "reason": "String (quote the user\'s interests)", "searchTerm": "String (3-5 words for Amazon search)"}]';
 
 function parseLocal(sentence, page) {
   const lower = sentence.toLowerCase();
@@ -90,10 +76,22 @@ function parseLocal(sentence, page) {
   };
 }
 
+function parseConditions(sentence) {
+  const lower = sentence.toLowerCase();
+  const budgetMatch = sentence.match(/£\s*(\d+(?:\.\d{2})?)/)
+    || sentence.match(/(\d+(?:\.\d{2})?)\s*(?:pounds|gbp|budget)/i)
+    || sentence.match(/budget\D{0,6}(\d+(?:\.\d{2})?)/i);
+  const budget = budgetMatch ? Number(budgetMatch[1]) : null;
+  const recipientMatch = sentence.match(/\b(girlfriend|wife|partner|friend|mum|mother|dad|father|sister|brother|teenager|teen|him|her|them)\b/i);
+  const interestWords = (lower.match(/skincare|beauty|makeup|perfume|candle|cosy|socks|knit|pyjamas|chocolate|tea|coffee|home|travel|reading|gardening|fitness|music|films?|crafts?|tech|gaming|dogs?|cats?|football|rugby|yoga|cooking/g) || []);
+  return { budget_gbp: budget, recipient: recipientMatch ? recipientMatch[1] : null, interests: interestWords.slice(0, 5) };
+}
+
 function sanitize(parsed, sentence) {
-  if (!parsed || !Array.isArray(parsed.recommendations)) throw new Error('bad shape');
+  const arr = Array.isArray(parsed) ? parsed : (parsed && Array.isArray(parsed.recommendations) ? parsed.recommendations : null);
+  if (!arr) throw new Error('bad shape');
   const words = sentence.toLowerCase().replace(/[^a-z0-9£\s]/g, ' ').split(/\s+/).filter(w => w.length > 2);
-  let recs = parsed.recommendations.filter(r => r && typeof r.title === 'string' && typeof r.reason === 'string' && typeof r.searchTerm === 'string');
+  let recs = arr.filter(r => r && typeof r.title === 'string' && typeof r.reason === 'string' && typeof r.searchTerm === 'string');
   recs = recs.slice(0, 3);
   if (recs.length < 2) throw new Error('too few recommendations');
   for (const r of recs) {
@@ -115,7 +113,7 @@ async function aiRecommend(sentence, page, modelKey, modelBase, modelName) {
     model: modelName,
     messages: [
       { role: 'system', content: SYSTEM },
-      { role: 'user', content: `Page: ${page} — ${PAGES[page]}.\nUser sentence: "${sentence}"\nReturn the JSON object only.` },
+      { role: 'user', content: sentence },
     ],
     max_tokens: 500,
   });
@@ -132,11 +130,20 @@ async function aiRecommend(sentence, page, modelKey, modelBase, modelName) {
     const data = await res.json();
     let text = data.choices?.[0]?.message?.content || '';
     text = text.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
-    const start = text.indexOf('{');
-    const end = text.lastIndexOf('}');
-    if (start === -1 || end === -1) throw new Error('no JSON in model reply');
-    const parsed = JSON.parse(text.slice(start, end + 1));
-    return { conditions: parsed.conditions || {}, recommendations: sanitize(parsed, sentence), source: 'model' };
+    let parsed;
+    const aStart = text.indexOf('[');
+    const aEnd = text.lastIndexOf(']');
+    const oStart = text.indexOf('{');
+    const oEnd = text.lastIndexOf('}');
+    if (aStart !== -1 && aEnd !== -1 && (oStart === -1 || aStart < oStart)) {
+      parsed = JSON.parse(text.slice(aStart, aEnd + 1));
+    } else if (oStart !== -1 && oEnd !== -1) {
+      parsed = JSON.parse(text.slice(oStart, oEnd + 1));
+    } else {
+      throw new Error('no JSON in model reply');
+    }
+    const conditions = parseConditions(sentence);
+    return { conditions, recommendations: sanitize(parsed, sentence), source: 'model' };
   } finally {
     clearTimeout(timer);
   }

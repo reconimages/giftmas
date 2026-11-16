@@ -1,0 +1,74 @@
+/* Giftmas — mobile-first, festive, fluid */
+:root {
+  --bg: #0B3D2E;
+  --bg-deep: #07291F;
+  --card: #FDF8F0;
+  --text: #1a2e24;
+  --text-on-bg: #FDF8F0;
+  --muted: #5a6b60;
+  --cta: #C0392B;
+  --cta-hover: #A93226;
+  --gold: #C9A227;
+  --gold-soft: #E8D9A0;
+  --border: #C9A227;
+  --radius: 12px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  line-height: 1.55;
+  background: var(--bg);
+  color: var(--text-on-bg);
+}
+h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; color: var(--text-on-bg); margin: 0; }
+h1 { font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem); line-height: 1.15; }
+h2 { font-size: clamp(1.2rem, 1rem + 0.8vw, 1.5rem); margin-top: clamp(1.25rem, 2vw, 2rem); }
+h3 { font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.2rem); }
+p { margin: 0 0 clamp(0.5rem, 1vw, 0.75rem); }
+.wrap { max-width: 680px; margin: 0 auto; padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem) clamp(2rem, 4vw, 3rem); }
+.hero {
+  position: relative;
+  padding: clamp(1.25rem, 3vw, 2rem) 0 clamp(1rem, 2vw, 1.5rem);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='%23C9A227' fill-opacity='0.12'%3E%3Ccircle cx='10' cy='10' r='1.5'/%3E%3Ccircle cx='40' cy='25' r='1'/%3E%3Ccircle cx='25' cy='45' r='1.2'/%3E%3Ccircle cx='50' cy='50' r='0.8'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+.countdown { font-size: 0.85rem; color: var(--gold-soft); margin: 0 0 clamp(0.75rem, 1.5vw, 1rem); }
+.intro { color: var(--gold-soft); margin: 0 0 clamp(0.75rem, 1.5vw, 1rem); }
+.disclosure { background: var(--bg-deep); color: var(--gold-soft); padding: clamp(0.5rem, 1vw, 0.65rem) clamp(0.75rem, 1.5vw, 1rem); border-radius: 8px; font-size: 0.8rem; margin: clamp(0.75rem, 1.5vw, 1rem) 0; border: 1px solid var(--gold); }
+form { display: flex; flex-direction: column; gap: clamp(0.5rem, 1vw, 0.75rem); margin: clamp(0.75rem, 1.5vw, 1rem) 0; }
+@media (min-width: 480px) { form { flex-direction: row; } }
+input[type=text] {
+  flex: 1; min-height: 44px; padding: 0.75rem 0.875rem; border-radius: 8px;
+  border: 1px solid var(--gold); background: var(--bg-deep); color: var(--text-on-bg); font-size: 1rem;
+}
+button {
+  min-height: 44px; padding: 0.75rem 1.25rem; border: 0; border-radius: 8px;
+  background: var(--cta); color: #fff; font-weight: 700; cursor: pointer; font-size: 1rem;
+}
+button:hover { background: var(--cta-hover); }
+button:disabled { opacity: 0.5; }
+.card {
+  background: var(--card); color: var(--text); border: 1px solid var(--gold);
+  border-radius: var(--radius); padding: clamp(0.875rem, 2vw, 1.125rem);
+  margin: clamp(0.75rem, 1.5vw, 1rem) 0;
+}
+.card h3 { color: var(--text); margin: 0 0 0.375rem; }
+.card .reason { margin: 0 0 0.5rem; }
+.card .band { color: var(--muted); font-size: 0.85rem; margin: 0 0 0.75rem; }
+.card .buy {
+  display: flex; align-items: center; justify-content: center; min-height: 44px;
+  background: var(--cta); color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; padding: 0.5rem 0.75rem;
+}
+.card .buy:hover { background: var(--cta-hover); }
+.chips { display: flex; flex-wrap: wrap; gap: 0.375rem; list-style: none; padding: 0; margin: 0.5rem 0 0; }
+.chips li { background: var(--bg-deep); color: var(--gold-soft); padding: 0.25rem 0.625rem; border-radius: 999px; font-size: 0.8rem; border: 1px solid var(--gold); }
+.parsed { font-size: 0.9rem; color: var(--gold-soft); margin: 0.75rem 0 0.25rem; }
+.loading { color: var(--gold-soft); }
+.error { color: #fca5a5; }
+footer { margin-top: clamp(1.5rem, 3vw, 2.5rem); border-top: 1px solid var(--gold); padding-top: clamp(0.75rem, 1.5vw, 1rem); color: var(--gold-soft); font-size: 0.8rem; }
+a { color: var(--gold); }
+@media (min-width: 768px) { .wrap { max-width: 760px; } }
+@media (min-width: 1024px) { .wrap { max-width: 820px; } }

@@ -46,8 +46,8 @@ Cloudflare Pages Function at `functions/api/recommend.js`. Reads the model key f
 
 Replace each `PLACEHOLDER_LINK` with a real amazon.co.uk product URL ending in `?tag=giftmas00-21`.
 
-- `src/pages/secret-santa.astro` — lines 18, 25, 32 (`href="PLACEHOLDER_LINK"`)
-- `src/pages/gifts-for-girlfriend.astro` — lines 18, 25, 32 (`href="PLACEHOLDER_LINK"`)
+- `src/pages/secret-santa.astro` — lines 19, 26, 33 (`href="PLACEHOLDER_LINK"`)
+- `src/pages/gifts-for-girlfriend.astro` — lines 19, 26, 33 (`href="PLACEHOLDER_LINK"`)
 
 AI-generated cards render `PLACEHOLDER_LINK` as the slot; curate winners into the static picks above.
 

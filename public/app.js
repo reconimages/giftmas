@@ -34,15 +34,14 @@ function render(data) {
   const chipsHtml = chips.length ? '<ul class="chips">' + chips.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '';
   const label = data.source === 'model' ? 'Parsed from your sentence:' : 'Local picks (AI key not set):';
   const cards = (data.recommendations || []).map((r) => {
-    const productType = r.productType || r.product_type || '';
+    const title = r.title || r.productType || r.product_type || '';
     const reason = r.reason || '';
-    const price = r.estimatedPrice || r.price_band || '';
-    const href = 'https://www.amazon.co.uk/s?k=' + encodeURIComponent(productType) + '&tag=giftmas00-21';
+    const term = r.searchTerm || title;
+    const href = 'https://www.amazon.co.uk/s?k=' + encodeURIComponent(term) + '&tag=giftmas00-21';
     return `
       <article class="card">
-        <h3>${esc(productType)}</h3>
+        <h3>${esc(title)}</h3>
         <p class="reason">${esc(reason)}</p>
-        <p class="band">${esc(price)}</p>
         <a class="buy" href="${esc(href)}" rel="sponsored nofollow noopener" target="_blank">Buy on Amazon</a>
       </article>`;
   }).join('');

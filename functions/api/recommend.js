@@ -6,9 +6,9 @@ export async function onRequestPost(context) {
   try { input = await request.json(); } catch { return json({ error: 'Body must be JSON with a "sentence" string.' }, 400); }
   const sentence = String(input?.sentence || input?.query || '').trim();
   let page = String(input?.page || '');
-  if (!page) page = /girlfriend|skincare|beauty|\bher\b/i.test(sentence) ? 'gifts-for-girlfriend' : 'secret-santa';
+  if (!page) page = /girlfriend|skincare|beauty|\bher\b/i.test(sentence) ? 'gifts-for-girlfriend' : 'home';
+  if (!PAGES[page]) page = 'home';
   if (!sentence || sentence.length > 300) return json({ error: 'Sentence is empty or over 300 characters.' }, 400);
-  if (!PAGES[page]) return json({ error: 'Unknown page. Use "secret-santa" or "gifts-for-girlfriend".' }, 400);
 
   const modelKey = env.MODEL_API_KEY || env.OPENAI_API_KEY || '';
   const modelBase = (env.MODEL_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
@@ -28,6 +28,7 @@ export async function onRequestPost(context) {
 }
 
 const PAGES = {
+  'home': 'General UK gift recommendations',
   'secret-santa': 'UK Secret Santa gifts, target budget £10–£15',
   'gifts-for-girlfriend': 'Gifts for girlfriend, lead sub-theme skincare/beauty',
 };
@@ -38,14 +39,14 @@ const SYSTEM = [
   'Hard rules:',
   '- "recommendations" must hold 2 or 3 items, never more.',
   '- Never name brands, specific products, ASINs, or star ratings. Recommend product categories only.',
-  '- Never state a hard price. Every estimatedPrice must look like "around £12–£18 (estimate)".',
+  '- Never state a hard price.',
   '- Never recommend gift cards, video games, or games consoles.',
   '- Prefer these commission categories in order: Luxury Beauty 6%, Clothing & Accessories 6%, Home & Kitchen 5%, Standard Beauty 4%.',
   '- Every reason must quote or clearly reuse words the user wrote about the recipient.',
-  '- Budget, if the user gave one, is a hard constraint: every estimatedPrice must fit inside it.',
+  '- For each recommendation, provide a "searchTerm": a highly specific 3-5 word Amazon UK search phrase that would return the best results (e.g. "gaming mouse pad under 30", "funny gaming mug").',
   '- Use UK English.',
   'Output shape:',
-  '{"conditions":{"budget_gbp":null,"recipient":null,"interests":[]},"recommendations":[{"productType":"...","reason":"...","estimatedPrice":"around £10–£15 (estimate)"}]}',
+  '{"conditions":{"budget_gbp":null,"recipient":null,"interests":[]},"recommendations":[{"title":"...","reason":"...","searchTerm":"..."}]}',
 ].join('\n');
 
 function parseLocal(sentence, page) {
@@ -57,30 +58,32 @@ function parseLocal(sentence, page) {
   const recipientMatch = sentence.match(/\b(girlfriend|wife|partner|friend|mum|mother|dad|father|sister|brother|teenager|teen|him|her|them)\b/i);
   const interestWords = (lower.match(/skincare|beauty|makeup|perfume|candle|cosy|socks|knit|pyjamas|chocolate|tea|coffee|home|travel|reading|gardening|fitness|music|films?|crafts?|tech|gaming|dogs?|cats?|football|rugby|yoga|cooking/g) || []);
   const catalog = {
+    'home': [
+      ['Scented candle gift set', 'scented candle gift set'],
+      ['Novelty sock gift set', 'novelty sock gift set'],
+      ['Luxury skincare gift set', 'luxury skincare gift set'],
+      ['Silk pyjama set', 'silk pyjama set women'],
+      ['Fragrance gift set', 'fragrance gift set for her'],
+    ],
     'secret-santa': [
-      ['Scented candle gift set', 'Home & Kitchen (5%)', 'around £10–£15 (estimate)'],
-      ['Novelty sock gift set', 'Clothing & Accessories (6%)', 'around £8–£12 (estimate)'],
-      ['Mini skincare discovery set', 'Standard Beauty (4%)', 'around £10–£15 (estimate)'],
+      ['Scented candle gift set', 'scented candle gift set under 15'],
+      ['Novelty sock gift set', 'funny secret santa socks'],
+      ['Mini skincare discovery set', 'mini skincare discovery set'],
     ],
     'gifts-for-girlfriend': [
-      ['Luxury skincare gift set', 'Luxury Beauty (6%)', 'around £25–£40 (estimate)'],
-      ['Silk pyjama set', 'Clothing & Accessories (6%)', 'around £25–£45 (estimate)'],
-      ['Fragrance gift set', 'Luxury Beauty (6%)', 'around £30–£50 (estimate)'],
+      ['Luxury skincare gift set', 'luxury skincare gift set for her'],
+      ['Silk pyjama set', 'silk pyjamas women'],
+      ['Fragrance gift set', 'perfume gift set for her'],
     ],
   };
-  const recs = catalog[page].map(([product_type, commission_category, band], i) => {
-    let estimatedPrice = band;
-    if (budget && band) {
-      const max = Number((band.match(/£(\d+(?:\.\d{2})?)\s*\(estimate\)/) || [])[1]);
-      if (max && max > budget) estimatedPrice = `around £${Math.max(5, budget - 10)}–£${budget} (estimate)`;
-    }
+  const recs = catalog[page].map(([title, searchTerm], i) => {
     const echo = interestWords[i % Math.max(1, interestWords.length)] || (recipientMatch ? recipientMatch[1] : 'your recipient');
     return {
-      productType: product_type,
-      reason: `You mentioned ${echo}, so ${product_type.toLowerCase()} is a practical match that stays inside the budget.`,
-      estimatedPrice,
+      title,
+      reason: `You mentioned ${echo}, so ${title.toLowerCase()} is a practical match that stays inside the budget.`,
+      searchTerm,
     };
-  });
+  }).slice(0, 3);
   return {
     conditions: { budget_gbp: budget, recipient: recipientMatch ? recipientMatch[1] : null, interests: interestWords.slice(0, 5) },
     recommendations: recs,
@@ -90,15 +93,13 @@ function parseLocal(sentence, page) {
 function sanitize(parsed, sentence) {
   if (!parsed || !Array.isArray(parsed.recommendations)) throw new Error('bad shape');
   const words = sentence.toLowerCase().replace(/[^a-z0-9£\s]/g, ' ').split(/\s+/).filter(w => w.length > 2);
-  let recs = parsed.recommendations.filter(r => r && typeof r.productType === 'string' && typeof r.reason === 'string');
+  let recs = parsed.recommendations.filter(r => r && typeof r.title === 'string' && typeof r.reason === 'string' && typeof r.searchTerm === 'string');
   recs = recs.slice(0, 3);
   if (recs.length < 2) throw new Error('too few recommendations');
   for (const r of recs) {
-    r.productType = String(r.productType).slice(0, 120);
+    r.title = String(r.title).slice(0, 120);
     r.reason = String(r.reason).slice(0, 300);
-    if (!r.estimatedPrice || !/£\s*\d+/.test(r.estimatedPrice)) r.estimatedPrice = 'around £10–£15 (estimate)';
-    else if (!/estimate/i.test(r.estimatedPrice)) r.estimatedPrice += ' (estimate)';
-    r.estimatedPrice = String(r.estimatedPrice).slice(0, 60);
+    r.searchTerm = String(r.searchTerm).slice(0, 80);
   }
   const dump = JSON.stringify(recs);
   if (/B0[A-Z0-9]{8}/i.test(dump) || /ASIN/i.test(dump) || /★|\d\s?stars?/i.test(dump) || /gift card|video game|console/i.test(dump)) {

@@ -1,11 +1,31 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout title="Giftmas — UK Christmas Gift Guides" description="UK Christmas gift guides for Secret Santa and gifts for girlfriend.">
+<Layout title="Giftmas | AI Gift Search" description="AI-powered gift recommendations tailored to your budget and their interests.">
   <header class="hero">
-    <h1>Giftmas</h1>
-    <p class="intro">UK Christmas gift guides. Pick a category to start.</p>
+    <div class="brand-badge"><img src="/images/giftmas-logo.jpeg" alt="Giftmas" class="brand-logo" /></div>
+    <h1>Find the perfect gift with AI</h1>
+    <p class="intro">Type what you're looking for and we'll find 2–3 gift ideas with Amazon UK links.</p>
+    <p class="disclosure">Powered by AI. Links earn us a commission. As an Amazon Associate, I earn from qualifying purchases.</p>
   </header>
+
+  <section class="search-box">
+    <form id="gift-form">
+      <input id="recipient" type="text" placeholder="What are you looking for? e.g., £30 Secret Santa for a gamer." required maxlength="300" />
+      <button type="submit">Find Gifts</button>
+    </form>
+    <noscript><p>JavaScript is required for personalised recommendations.</p></noscript>
+    <div id="recommendation-results"></div>
+  </section>
+
+  <h2>Popular Categories</h2>
   <p><a href="/secret-santa">Secret Santa gifts under £15</a></p>
   <p><a href="/gifts-for-girlfriend">Gifts for girlfriend (skincare & beauty)</a></p>
+
+  <footer>Giftmas · <a href="/secret-santa">Secret Santa</a> · <a href="/gifts-for-girlfriend">Gifts for girlfriend</a></footer>
+
+  <script is:inline>
+    window.PAGE_SLUG = 'home';
+  </script>
+  <script src="/app.js" is:inline></script>
 </Layout>

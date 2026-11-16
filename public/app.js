@@ -11,10 +11,12 @@ if (form) {
     if (!sentence) return;
     out.innerHTML = '<p class="loading">Finding the perfect gifts...</p>';
     try {
+      const payload = { query: sentence, page: window.PAGE_SLUG };
+      console.log('Sending to API:', payload);
       const res = await fetch('/api/recommend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: sentence, page: window.PAGE_SLUG }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Server error');

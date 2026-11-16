@@ -6,3 +6,4 @@ dist/
 *.log
 *.err
 .wrangler/
+*.bak

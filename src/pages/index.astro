@@ -175,7 +175,9 @@ import Layout from '../layouts/Layout.astro';
       var query = 'Budget: ' + quizData.budget + '. Recipient: ' + quizData.recipient + '. Interests: ' + quizData.interests + '. Style: ' + quizData.style + '.';
       if (results) results.innerHTML = '<p class="loading"><span class="spinner"></span>Consulting Santa\'s helpers...</p>';
       try {
-        var res = await fetch('/api/recommend', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: query, page: 'home' }) });
+        var payload = { query: query, page: 'home' };
+        console.log('Sending to API:', payload);
+        var res = await fetch('/api/recommend', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         var data = await res.json();
         if (!res.ok || !data.recommendations || data.recommendations.length === 0) throw new Error(data.error || 'no results');
         var cards = data.recommendations.map(function (r) {

@@ -11,6 +11,7 @@ export async function onRequestPost(context) {
   if (!sentence || sentence.length > 300) return json({ error: 'Sentence is empty or over 300 characters.' }, 400);
 
   const modelKey = env.MODEL_API_KEY || env.OPENAI_API_KEY || '';
+  console.log('Incoming query:', sentence, 'page:', page, 'hasKey:', !!modelKey);
   const modelBase = (env.MODEL_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
   const modelName = env.MODEL_MODEL || 'gpt-4o-mini';
 
@@ -33,7 +34,7 @@ const PAGES = {
   'gifts-for-girlfriend': 'Gifts for girlfriend, lead sub-theme skincare/beauty',
 };
 
-const SYSTEM = 'You are an expert UK gift buyer. The user will provide a structured brief including budget, recipient, interests, and style. Recommend exactly 3 highly specific gift ideas that fit the budget and match the interests and style. Return ONLY a valid JSON array: [{"title": "String", "reason": "String (quote the user\'s specific interests)", "searchTerm": "String (3-5 words for Amazon search)"}].';
+const SYSTEM = 'You are an expert UK gift buyer. The user will provide a specific brief (Recipient, Interests, Budget, Style). You MUST recommend 3 highly specific, unique gift ideas that perfectly match the brief. If the user asks for "Skincare", do NOT recommend a generic mug. If the user asks for "Under £15", do NOT recommend a £50 item. Return ONLY a raw JSON array, no markdown formatting: [{"title": "Specific Gift Name", "reason": "Quote the user\'s interests to explain why", "searchTerm": "3-5 highly specific words for Amazon search"}]';
 
 function parseLocal(sentence, page) {
   const lower = sentence.toLowerCase();
@@ -62,14 +63,26 @@ function parseLocal(sentence, page) {
       ['Fragrance gift set', 'perfume gift set for her'],
     ],
   };
-  const recs = catalog[page].map(([title, searchTerm], i) => {
-    const echo = interestWords[i % Math.max(1, interestWords.length)] || (recipientMatch ? recipientMatch[1] : 'your recipient');
-    return {
-      title,
-      reason: `You mentioned ${echo}, so ${title.toLowerCase()} is a practical match that stays inside the budget.`,
-      searchTerm,
-    };
-  }).slice(0, 3);
+  const uniqueInterests = [...new Set(interestWords)];
+  let recs = uniqueInterests.slice(0, 3).map((term) => ({
+    title: term.charAt(0).toUpperCase() + term.slice(1) + ' gift idea',
+    reason: `You mentioned ${term}, so this is a tailored pick that fits the brief.`,
+    searchTerm: term + ' gift set',
+  }));
+  const cat = catalog[page] || catalog.home;
+  let ci = 0;
+  while (recs.length < 3) {
+    const item = cat[ci % cat.length];
+    ci++;
+    if (recs.some(r => r.title === item[0])) continue;
+    const echo = interestWords[0] || (recipientMatch ? recipientMatch[1] : 'your recipient');
+    recs.push({
+      title: item[0],
+      reason: `You mentioned ${echo}, so ${item[0].toLowerCase()} is a practical match that stays inside the budget.`,
+      searchTerm: item[1],
+    });
+  }
+  recs = recs.slice(0, 3);
   return {
     conditions: { budget_gbp: budget, recipient: recipientMatch ? recipientMatch[1] : null, interests: interestWords.slice(0, 5) },
     recommendations: recs,
@@ -113,7 +126,7 @@ async function aiRecommend(sentence, page, modelKey, modelBase, modelName) {
     model: modelName,
     messages: [
       { role: 'system', content: SYSTEM },
-      { role: 'user', content: sentence },
+      { role: 'user', content: sentence + ' Generate a unique response for this request ID: ' + Math.random() },
     ],
     max_tokens: 500,
   });
@@ -129,6 +142,7 @@ async function aiRecommend(sentence, page, modelKey, modelBase, modelName) {
     if (!res.ok) throw new Error(`model HTTP ${res.status}`);
     const data = await res.json();
     let text = data.choices?.[0]?.message?.content || '';
+    console.log('AI raw response:', text);
     text = text.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
     let parsed;
     const aStart = text.indexOf('[');

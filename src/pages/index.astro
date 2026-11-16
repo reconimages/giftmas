@@ -68,7 +68,7 @@ import Layout from '../layouts/Layout.astro';
 
   <div id="recommendation-results"></div>
 
-  <section class="browse-categories">
+  <div class="category-dropdown-wrapper">
     <h2>Or browse popular categories 🎁</h2>
     <select id="categorySelect" class="category-select">
       <option value="" disabled selected>Select a category...</option>
@@ -88,11 +88,7 @@ import Layout from '../layouts/Layout.astro';
       <option value="https://www.amazon.co.uk/s?k=book+and+stationery+gifts&tag=giftmas00-21">Books &amp; Stationery</option>
       <option value="https://www.amazon.co.uk/s?k=food+and+drink+hampers&tag=giftmas00-21">Food &amp; Drink Hampers</option>
     </select>
-  </section>
-
-  <h2>Popular Categories</h2>
-  <p><a href="/secret-santa">Secret Santa gifts under £15</a></p>
-  <p><a href="/gifts-for-girlfriend">Gifts for girlfriend (skincare & beauty)</a></p>
+  </div>
 
   <footer>Giftmas · <a href="/secret-santa">Secret Santa</a> · <a href="/gifts-for-girlfriend">Gifts for girlfriend</a></footer>
 

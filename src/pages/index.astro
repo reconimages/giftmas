@@ -68,6 +68,28 @@ import Layout from '../layouts/Layout.astro';
 
   <div id="recommendation-results"></div>
 
+  <section class="browse-categories">
+    <h2>Or browse popular categories 🎁</h2>
+    <select id="categorySelect" class="category-select">
+      <option value="" disabled selected>Select a category...</option>
+      <option value="https://www.amazon.co.uk/s?k=stocking+fillers+under+10&tag=giftmas00-21">Stocking Fillers (Under £10)</option>
+      <option value="https://www.amazon.co.uk/s?k=secret+santa+gifts+under+15&tag=giftmas00-21">Secret Santa (Under £15)</option>
+      <option value="https://www.amazon.co.uk/s?k=gifts+for+her&tag=giftmas00-21">Gifts for Her</option>
+      <option value="https://www.amazon.co.uk/s?k=gifts+for+him&tag=giftmas00-21">Gifts for Him</option>
+      <option value="https://www.amazon.co.uk/s?k=gifts+for+mum&tag=giftmas00-21">Gifts for Mum</option>
+      <option value="https://www.amazon.co.uk/s?k=gifts+for+dad&tag=giftmas00-21">Gifts for Dad</option>
+      <option value="https://www.amazon.co.uk/s?k=gifts+for+grandparents&tag=giftmas00-21">Gifts for Grandparents</option>
+      <option value="https://www.amazon.co.uk/s?k=gifts+for+kids&tag=giftmas00-21">Gifts for Kids</option>
+      <option value="https://www.amazon.co.uk/s?k=teacher+gifts&tag=giftmas00-21">Gifts for Teachers</option>
+      <option value="https://www.amazon.co.uk/s?k=gifts+for+gamers&tag=giftmas00-21">Gifts for Gamers</option>
+      <option value="https://www.amazon.co.uk/s?k=beauty+gift+sets&tag=giftmas00-21">Beauty &amp; Skincare</option>
+      <option value="https://www.amazon.co.uk/s?k=tech+gadgets+gifts&tag=giftmas00-21">Tech &amp; Gadgets</option>
+      <option value="https://www.amazon.co.uk/s?k=home+and+kitchen+gifts&tag=giftmas00-21">Home &amp; Kitchen</option>
+      <option value="https://www.amazon.co.uk/s?k=book+and+stationery+gifts&tag=giftmas00-21">Books &amp; Stationery</option>
+      <option value="https://www.amazon.co.uk/s?k=food+and+drink+hampers&tag=giftmas00-21">Food &amp; Drink Hampers</option>
+    </select>
+  </section>
+
   <h2>Popular Categories</h2>
   <p><a href="/secret-santa">Secret Santa gifts under £15</a></p>
   <p><a href="/gifts-for-girlfriend">Gifts for girlfriend (skincare & beauty)</a></p>
@@ -76,6 +98,17 @@ import Layout from '../layouts/Layout.astro';
 
   <script is:inline>
     window.PAGE_SLUG = 'home';
+  </script>
+  <script is:inline>
+  (function () {
+    var sel = document.getElementById('categorySelect');
+    if (sel) {
+      sel.addEventListener('change', function () {
+        var url = sel.value;
+        if (url) { window.location.href = url; }
+      });
+    }
+  })();
   </script>
   <script is:inline>
   (function () {

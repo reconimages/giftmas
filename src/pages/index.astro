@@ -61,8 +61,8 @@ import Layout from '../layouts/Layout.astro';
     <div class="quiz-nav">
       <button type="button" id="backBtn" hidden>Back</button>
       <div class="spacer"></div>
-      <button type="button" id="nextBtn">Next</button>
-      <button type="button" id="findBtn" hidden>Find My Gift</button>
+      <button type="button" id="nextBtn" class="btn-primary">Next</button>
+      <button type="button" id="findBtn" class="btn-primary" hidden>Find My Gift</button>
     </div>
     <p class="error-msg" id="errorMsg" hidden>Please select an option to continue.</p>
   </section>
@@ -183,7 +183,7 @@ import Layout from '../layouts/Layout.astro';
         return;
       }
       var query = 'Budget: ' + quizData.budget + '. Recipient: ' + quizData.recipient + '. Interests: ' + quizData.interests + '. Style: ' + quizData.style + '.';
-      if (results) results.innerHTML = '<p class="loading"><span class="spinner"></span>Consulting Santa\'s elves...</p>';
+      if (results) results.innerHTML = '<p class="loading"><span class="spinner"></span>Consulting Santa\'s helpers...</p>';
       try {
         var res = await fetch('/api/recommend', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: query, page: 'home' }) });
         var data = await res.json();

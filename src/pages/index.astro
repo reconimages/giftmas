@@ -10,16 +10,17 @@ import Layout from '../layouts/Layout.astro';
   </header>
 
   <section class="quiz" id="quiz">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
     <p class="progress" id="progress">Step 1 of 4</p>
 
     <div class="quiz-step active" data-step="1">
       <h2>Who is it for?</h2>
       <div class="options">
-        <label class="option"><input type="radio" name="recipient" value="Partner" /> Partner</label>
-        <label class="option"><input type="radio" name="recipient" value="Parent" /> Parent</label>
-        <label class="option"><input type="radio" name="recipient" value="Friend" /> Friend</label>
-        <label class="option"><input type="radio" name="recipient" value="Colleague" /> Colleague</label>
-        <label class="option"><input type="radio" name="recipient" value="Someone who has everything" /> Someone who has everything</label>
+        <button type="button" class="card-option recipient-btn" data-value="Partner"><span class="icon">❤️</span> Partner</button>
+        <button type="button" class="card-option recipient-btn" data-value="Parent"><span class="icon">🏠</span> Parent</button>
+        <button type="button" class="card-option recipient-btn" data-value="Friend"><span class="icon">🍻</span> Friend</button>
+        <button type="button" class="card-option recipient-btn" data-value="Colleague"><span class="icon">💼</span> Colleague</button>
+        <button type="button" class="card-option recipient-btn" data-value="Someone who has everything"><span class="icon">🎁</span> Someone who has everything</button>
       </div>
     </div>
 
@@ -41,8 +42,8 @@ import Layout from '../layouts/Layout.astro';
     <div class="quiz-step" data-step="4" hidden>
       <h2>Practical or Luxury?</h2>
       <div class="options">
-        <button type="button" class="option-btn style-btn" data-value="Practical & Useful">Practical & Useful</button>
-        <button type="button" class="option-btn style-btn" data-value="A Little Luxury">A Little Luxury</button>
+        <button type="button" class="card-option style-btn" data-value="Practical & Useful"><span class="icon">🛠️</span> Practical & Useful</button>
+        <button type="button" class="card-option style-btn" data-value="A Little Luxury"><span class="icon">✨</span> A Little Luxury</button>
       </div>
     </div>
 
@@ -71,6 +72,7 @@ import Layout from '../layouts/Layout.astro';
     var currentStep = 1;
     var totalSteps = 4;
     var progress = document.getElementById('progress');
+    var progressFill = document.getElementById('progressFill');
     var backBtn = document.getElementById('backBtn');
     var nextBtn = document.getElementById('nextBtn');
     var findBtn = document.getElementById('findBtn');
@@ -79,10 +81,12 @@ import Layout from '../layouts/Layout.astro';
     function showStep(n) {
       currentStep = n;
       document.querySelectorAll('.quiz-step').forEach(function (s) {
-        s.classList.toggle('active', Number(s.getAttribute('data-step')) === n);
-        if (Number(s.getAttribute('data-step')) === n) s.removeAttribute('hidden'); else s.setAttribute('hidden', '');
+        var isThis = Number(s.getAttribute('data-step')) === n;
+        s.classList.toggle('active', isThis);
+        if (isThis) s.removeAttribute('hidden'); else s.setAttribute('hidden', '');
       });
       if (progress) progress.textContent = 'Step ' + n + ' of ' + totalSteps;
+      if (progressFill) progressFill.style.width = (n / totalSteps * 100) + '%';
       if (backBtn) backBtn.hidden = (n === 1);
       if (nextBtn) nextBtn.hidden = (n === totalSteps);
       if (findBtn) findBtn.hidden = (n !== totalSteps);
@@ -103,6 +107,15 @@ import Layout from '../layouts/Layout.astro';
       return true;
     }
 
+    document.querySelectorAll('.recipient-btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('.recipient-btn').forEach(function (x) { x.classList.remove('selected'); });
+        b.classList.add('selected');
+        var radio = b.querySelector('input');
+        if (radio) radio.checked = true;
+        quizData.recipient = b.getAttribute('data-value');
+      });
+    });
     document.querySelectorAll('.budget-btn').forEach(function (b) {
       b.addEventListener('click', function () {
         document.querySelectorAll('.budget-btn').forEach(function (x) { x.classList.remove('selected'); });
@@ -131,7 +144,7 @@ import Layout from '../layouts/Layout.astro';
     async function findGifts() {
       if (!readStep(4)) { alert('Please choose Practical or Luxury.'); return; }
       var query = 'Budget: ' + quizData.budget + '. Recipient: ' + quizData.recipient + '. Interests: ' + quizData.interests + '. Style: ' + quizData.style + '.';
-      if (results) results.innerHTML = '<p class="loading">Finding the perfect gift...</p>';
+      if (results) results.innerHTML = '<p class="loading"><span class="spinner"></span>Consulting Santa\'s elves...</p>';
       try {
         var res = await fetch('/api/recommend', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: query, page: 'home' }) });
         var data = await res.json();
@@ -141,7 +154,7 @@ import Layout from '../layouts/Layout.astro';
           var reason = r.reason || '';
           var term = r.searchTerm || title;
           var href = 'https://www.amazon.co.uk/s?k=' + encodeURIComponent(term) + '&tag=giftmas00-21';
-          return '<article class="card"><h3>' + esc(title) + '</h3><p class="reason">' + esc(reason) + '</p><a class="buy" href="' + esc(href) + '" rel="sponsored nofollow noopener" target="_blank">Buy on Amazon</a></article>';
+          return '<article class="card fade-in"><h3>' + esc(title) + '</h3><p class="reason">' + esc(reason) + '</p><a class="buy" href="' + esc(href) + '" rel="sponsored nofollow noopener" target="_blank">Buy on Amazon</a></article>';
         }).join('');
         if (results) results.innerHTML = cards;
       } catch (err) {

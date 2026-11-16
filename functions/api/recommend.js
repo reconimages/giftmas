@@ -33,7 +33,7 @@ const PAGES = {
   'gifts-for-girlfriend': 'Gifts for girlfriend, lead sub-theme skincare/beauty',
 };
 
-const SYSTEM = 'You are an expert UK gift buyer. The user will provide a budget, a recipient, and their interests. You must recommend exactly 3 highly specific gift ideas. Do not recommend generic items like "a gift card" or "a mug". Each recommendation must have a specific search term that will yield the best results on Amazon UK. Return ONLY a valid JSON array with exactly this structure, no markdown, no backticks: [{"title": "String", "reason": "String (quote the user\'s interests)", "searchTerm": "String (3-5 words for Amazon search)"}]';
+const SYSTEM = 'You are an expert UK gift buyer. The user will provide a structured brief including budget, recipient, interests, and style. Recommend exactly 3 highly specific gift ideas that fit the budget and match the interests and style. Return ONLY a valid JSON array: [{"title": "String", "reason": "String (quote the user\'s specific interests)", "searchTerm": "String (3-5 words for Amazon search)"}].';
 
 function parseLocal(sentence, page) {
   const lower = sentence.toLowerCase();

@@ -1,22 +1,60 @@
 ---
 import Layout from '../layouts/Layout.astro';
 ---
-<Layout title="Giftmas | AI Gift Search" description="AI-powered gift recommendations tailored to your budget and their interests.">
+<Layout title="Giftmas | AI Gift Finder" description="AI-powered gift recommendations tailored to your budget and their interests.">
   <header class="hero">
     <div class="brand-badge"><img src="/images/giftmas-logo.jpeg" alt="Giftmas" class="brand-logo" /></div>
-    <h1>Find the perfect gift with AI</h1>
-    <p class="intro">Type what you're looking for and we'll find 2–3 gift ideas with Amazon UK links.</p>
+    <h1>Find the perfect gift</h1>
+    <p class="intro">Answer 4 quick questions and our AI will find 3 gift ideas tailored to them.</p>
     <p class="disclosure">Powered by AI. Links earn us a commission. As an Amazon Associate, I earn from qualifying purchases.</p>
   </header>
 
-  <section class="search-box">
-    <form id="gift-form">
-      <input id="recipient" type="text" placeholder="What are you looking for? e.g., £30 Secret Santa for a gamer." required maxlength="300" />
-      <button type="submit">Find Gifts</button>
-    </form>
-    <noscript><p>JavaScript is required for personalised recommendations.</p></noscript>
-    <div id="recommendation-results"></div>
+  <section class="quiz" id="quiz">
+    <p class="progress" id="progress">Step 1 of 4</p>
+
+    <div class="quiz-step active" data-step="1">
+      <h2>Who is it for?</h2>
+      <div class="options">
+        <label class="option"><input type="radio" name="recipient" value="Partner" /> Partner</label>
+        <label class="option"><input type="radio" name="recipient" value="Parent" /> Parent</label>
+        <label class="option"><input type="radio" name="recipient" value="Friend" /> Friend</label>
+        <label class="option"><input type="radio" name="recipient" value="Colleague" /> Colleague</label>
+        <label class="option"><input type="radio" name="recipient" value="Someone who has everything" /> Someone who has everything</label>
+      </div>
+    </div>
+
+    <div class="quiz-step" data-step="2" hidden>
+      <h2>What do they love?</h2>
+      <input id="interests" type="text" placeholder="e.g., skincare, gaming, coffee, travelling" maxlength="200" />
+    </div>
+
+    <div class="quiz-step" data-step="3" hidden>
+      <h2>What's the budget?</h2>
+      <div class="options">
+        <button type="button" class="option-btn budget-btn" data-value="Under £15">Under £15</button>
+        <button type="button" class="option-btn budget-btn" data-value="£15–£30">£15–£30</button>
+        <button type="button" class="option-btn budget-btn" data-value="£30–£50">£30–£50</button>
+        <button type="button" class="option-btn budget-btn" data-value="£50+">£50+</button>
+      </div>
+    </div>
+
+    <div class="quiz-step" data-step="4" hidden>
+      <h2>Practical or Luxury?</h2>
+      <div class="options">
+        <button type="button" class="option-btn style-btn" data-value="Practical & Useful">Practical & Useful</button>
+        <button type="button" class="option-btn style-btn" data-value="A Little Luxury">A Little Luxury</button>
+      </div>
+    </div>
+
+    <div class="quiz-nav">
+      <button type="button" id="backBtn" hidden>Back</button>
+      <div class="spacer"></div>
+      <button type="button" id="nextBtn">Next</button>
+      <button type="button" id="findBtn" hidden>Find My Gift</button>
+    </div>
   </section>
+
+  <div id="recommendation-results"></div>
 
   <h2>Popular Categories</h2>
   <p><a href="/secret-santa">Secret Santa gifts under £15</a></p>
@@ -27,5 +65,92 @@ import Layout from '../layouts/Layout.astro';
   <script is:inline>
     window.PAGE_SLUG = 'home';
   </script>
-  <script src="/app.js" is:inline></script>
+  <script is:inline>
+  (function () {
+    var quizData = { recipient: '', interests: '', budget: '', style: '' };
+    var currentStep = 1;
+    var totalSteps = 4;
+    var progress = document.getElementById('progress');
+    var backBtn = document.getElementById('backBtn');
+    var nextBtn = document.getElementById('nextBtn');
+    var findBtn = document.getElementById('findBtn');
+    var results = document.getElementById('recommendation-results');
+
+    function showStep(n) {
+      currentStep = n;
+      document.querySelectorAll('.quiz-step').forEach(function (s) {
+        s.classList.toggle('active', Number(s.getAttribute('data-step')) === n);
+        if (Number(s.getAttribute('data-step')) === n) s.removeAttribute('hidden'); else s.setAttribute('hidden', '');
+      });
+      if (progress) progress.textContent = 'Step ' + n + ' of ' + totalSteps;
+      if (backBtn) backBtn.hidden = (n === 1);
+      if (nextBtn) nextBtn.hidden = (n === totalSteps);
+      if (findBtn) findBtn.hidden = (n !== totalSteps);
+    }
+
+    function readStep(n) {
+      if (n === 1) {
+        var r = document.querySelector('input[name="recipient"]:checked');
+        quizData.recipient = r ? r.value : '';
+        return !!quizData.recipient;
+      }
+      if (n === 2) {
+        quizData.interests = (document.getElementById('interests').value || '').trim();
+        return quizData.interests.length > 0;
+      }
+      if (n === 3) return quizData.budget.length > 0;
+      if (n === 4) return quizData.style.length > 0;
+      return true;
+    }
+
+    document.querySelectorAll('.budget-btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('.budget-btn').forEach(function (x) { x.classList.remove('selected'); });
+        b.classList.add('selected');
+        quizData.budget = b.getAttribute('data-value');
+      });
+    });
+    document.querySelectorAll('.style-btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('.style-btn').forEach(function (x) { x.classList.remove('selected'); });
+        b.classList.add('selected');
+        quizData.style = b.getAttribute('data-value');
+      });
+    });
+
+    if (nextBtn) nextBtn.addEventListener('click', function () {
+      if (!readStep(currentStep)) { alert('Please make a selection.'); return; }
+      if (currentStep < totalSteps) showStep(currentStep + 1);
+    });
+    if (backBtn) backBtn.addEventListener('click', function () {
+      if (currentStep > 1) showStep(currentStep - 1);
+    });
+
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]); }); }
+
+    async function findGifts() {
+      if (!readStep(4)) { alert('Please choose Practical or Luxury.'); return; }
+      var query = 'Budget: ' + quizData.budget + '. Recipient: ' + quizData.recipient + '. Interests: ' + quizData.interests + '. Style: ' + quizData.style + '.';
+      if (results) results.innerHTML = '<p class="loading">Finding the perfect gift...</p>';
+      try {
+        var res = await fetch('/api/recommend', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: query, page: 'home' }) });
+        var data = await res.json();
+        if (!res.ok || !data.recommendations || data.recommendations.length === 0) throw new Error(data.error || 'no results');
+        var cards = data.recommendations.map(function (r) {
+          var title = r.title || '';
+          var reason = r.reason || '';
+          var term = r.searchTerm || title;
+          var href = 'https://www.amazon.co.uk/s?k=' + encodeURIComponent(term) + '&tag=giftmas00-21';
+          return '<article class="card"><h3>' + esc(title) + '</h3><p class="reason">' + esc(reason) + '</p><a class="buy" href="' + esc(href) + '" rel="sponsored nofollow noopener" target="_blank">Buy on Amazon</a></article>';
+        }).join('');
+        if (results) results.innerHTML = cards;
+      } catch (err) {
+        if (results) results.innerHTML = '<p class="error">Sorry, we couldn\'t find specific gifts for that. Try adding an age, budget, or interest.</p>';
+      }
+    }
+    if (findBtn) findBtn.addEventListener('click', findGifts);
+
+    showStep(1);
+  })();
+  </script>
 </Layout>

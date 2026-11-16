@@ -57,8 +57,8 @@ p { margin: 0 0 clamp(0.5rem, 1vw, 0.75rem); }
   pointer-events: none;
   opacity: 0.7;
 }
-.brand-badge { display: inline-block; background: var(--card); padding: 12px 24px; border-radius: 14px; margin: 0 0 clamp(0.75rem, 1.5vw, 1rem); box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
-.brand-logo { max-width: min(320px, 90vw); height: auto; display: block; mix-blend-mode: multiply; }
+.brand-badge { display: inline-block; background: transparent; padding: 8px 16px; border-radius: 14px; margin: 0 0 clamp(0.75rem, 1.5vw, 1rem); }
+.brand-logo { max-width: min(320px, 90vw); height: auto; display: block; mix-blend-mode: screen; }
 @media (min-width: 768px) { .brand-logo { max-width: min(400px, 90vw); } }
 .countdown { font-size: 0.85rem; color: var(--gold-soft); margin: 0 0 clamp(0.75rem, 1.5vw, 1rem); }
 .intro { color: var(--gold-soft); margin: 0 0 clamp(0.75rem, 1.5vw, 1rem); }

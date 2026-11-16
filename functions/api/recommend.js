@@ -38,15 +38,14 @@ const SYSTEM = [
   'Hard rules:',
   '- "recommendations" must hold 2 or 3 items, never more.',
   '- Never name brands, specific products, ASINs, or star ratings. Recommend product categories only.',
-  '- Never state a hard price. Every price_band must look like "around £12–£18 (estimate)".',
+  '- Never state a hard price. Every estimatedPrice must look like "around £12–£18 (estimate)".',
   '- Never recommend gift cards, video games, or games consoles.',
   '- Prefer these commission categories in order: Luxury Beauty 6%, Clothing & Accessories 6%, Home & Kitchen 5%, Standard Beauty 4%.',
   '- Every reason must quote or clearly reuse words the user wrote about the recipient.',
-  '- The link field is always the literal string PLACEHOLDER_LINK (a human editor pastes the real amazon.co.uk URL later).',
-  '- Budget, if the user gave one, is a hard constraint: every price_band must fit inside it.',
+  '- Budget, if the user gave one, is a hard constraint: every estimatedPrice must fit inside it.',
   '- Use UK English.',
   'Output shape:',
-  '{"conditions":{"budget_gbp":null,"recipient":null,"interests":[]},"recommendations":[{"product_type":"...","reason":"...","price_band":"around £10–£15 (estimate)","commission_category":"Home & Kitchen (5%)","link":"PLACEHOLDER_LINK"}]}',
+  '{"conditions":{"budget_gbp":null,"recipient":null,"interests":[]},"recommendations":[{"productType":"...","reason":"...","estimatedPrice":"around £10–£15 (estimate)"}]}',
 ].join('\n');
 
 function parseLocal(sentence, page) {
@@ -70,17 +69,16 @@ function parseLocal(sentence, page) {
     ],
   };
   const recs = catalog[page].map(([product_type, commission_category, band], i) => {
+    let estimatedPrice = band;
     if (budget && band) {
       const max = Number((band.match(/£(\d+(?:\.\d{2})?)\s*\(estimate\)/) || [])[1]);
-      if (max && max > budget) band = `around £${Math.max(5, budget - 10)}–£${budget} (estimate)`;
+      if (max && max > budget) estimatedPrice = `around £${Math.max(5, budget - 10)}–£${budget} (estimate)`;
     }
     const echo = interestWords[i % Math.max(1, interestWords.length)] || (recipientMatch ? recipientMatch[1] : 'your recipient');
     return {
-      product_type,
+      productType: product_type,
       reason: `You mentioned ${echo}, so ${product_type.toLowerCase()} is a practical match that stays inside the budget.`,
-      price_band: band,
-      commission_category,
-      link: 'PLACEHOLDER_LINK',
+      estimatedPrice,
     };
   });
   return {
@@ -92,17 +90,15 @@ function parseLocal(sentence, page) {
 function sanitize(parsed, sentence) {
   if (!parsed || !Array.isArray(parsed.recommendations)) throw new Error('bad shape');
   const words = sentence.toLowerCase().replace(/[^a-z0-9£\s]/g, ' ').split(/\s+/).filter(w => w.length > 2);
-  let recs = parsed.recommendations.filter(r => r && typeof r.product_type === 'string' && typeof r.reason === 'string');
+  let recs = parsed.recommendations.filter(r => r && typeof r.productType === 'string' && typeof r.reason === 'string');
   recs = recs.slice(0, 3);
   if (recs.length < 2) throw new Error('too few recommendations');
   for (const r of recs) {
-    r.link = 'PLACEHOLDER_LINK';
-    r.product_type = String(r.product_type).slice(0, 120);
+    r.productType = String(r.productType).slice(0, 120);
     r.reason = String(r.reason).slice(0, 300);
-    if (!/£\s*\d+/.test(r.price_band || '')) r.price_band = 'around £10–£15 (estimate)';
-    else if (!/estimate/i.test(r.price_band)) r.price_band += ' (estimate)';
-    r.price_band = String(r.price_band).slice(0, 60);
-    r.commission_category = String(r.commission_category || '').slice(0, 60);
+    if (!r.estimatedPrice || !/£\s*\d+/.test(r.estimatedPrice)) r.estimatedPrice = 'around £10–£15 (estimate)';
+    else if (!/estimate/i.test(r.estimatedPrice)) r.estimatedPrice += ' (estimate)';
+    r.estimatedPrice = String(r.estimatedPrice).slice(0, 60);
   }
   const dump = JSON.stringify(recs);
   if (/B0[A-Z0-9]{8}/i.test(dump) || /ASIN/i.test(dump) || /★|\d\s?stars?/i.test(dump) || /gift card|video game|console/i.test(dump)) {

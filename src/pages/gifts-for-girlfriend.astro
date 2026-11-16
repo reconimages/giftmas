@@ -10,6 +10,17 @@ import Layout from '../layouts/Layout.astro';
     <p class="disclosure">As an Amazon Associate, I earn from qualifying purchases.</p>
   </header>
 
+  <section class="search-box">
+    <h2>Find gifts with AI</h2>
+    <p class="intro">Type one sentence about her. Example: "£30 budget, 27-year-old girlfriend, loves skincare and travelling."</p>
+    <form id="gift-form">
+      <input id="recipient" type="text" placeholder="e.g., £30 budget, 27-year-old girlfriend, loves skincare and travelling." required maxlength="300" />
+      <button type="submit">Find Gifts</button>
+    </form>
+    <noscript><p>JavaScript is required for personalised recommendations. <a href="#picks">Browse our picks below</a>.</p></noscript>
+    <div id="recommendation-results"></div>
+  </section>
+
   <h2 id="picks">Editor's picks — paste real Amazon UK links here</h2>
   <!-- Replace PLACEHOLDER_LINK with real amazon.co.uk product URL + ?tag=giftmas00-21 -->
   <article class="card">
@@ -33,14 +44,6 @@ import Layout from '../layouts/Layout.astro';
     <a class="buy" href="https://www.amazon.co.uk/s?k=luxury+beauty+gift+set+under+30&tag=giftmas00-21" rel="sponsored nofollow noopener" target="_blank">View on Amazon — editor: paste real ?tag=giftmas00-21 link here</a>
   </article>
 
-  <h2>Try the AI picker</h2>
-  <p class="intro">Type one sentence about her. Example: "£30 budget, 27-year-old girlfriend, loves skincare and travelling."</p>
-  <noscript><p>JavaScript is required for personalised recommendations. <a href="#picks">Browse our picks below</a>.</p></noscript>
-  <form id="gift-form">
-    <input id="recipient" type="text" placeholder="£30 budget, 27-year-old girlfriend, loves skincare and travelling." required maxlength="300" />
-    <button type="submit">Pick 2–3 gifts</button>
-  </form>
-  <div id="results"></div>
   <p class="disclosure">As an Amazon Associate, I earn from qualifying purchases. Prices shown are estimates, not live Amazon prices.</p>
 
   <footer>Giftmas · <a href="/secret-santa">Secret Santa</a> · Gifts for girlfriend</footer>

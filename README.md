@@ -25,6 +25,10 @@ npm run preview
 
 Build output goes to `dist/`.
 
+## Theme guard
+
+`npm run build` runs `scripts/check-theme.mjs` first. It fails the build if the dark evergreen gradient is removed or the old `--bg-cream` palette returns, so a light-theme rewrite cannot reach the live site unnoticed. It also rewrites the `style.css` / `app.js` cache-bust tokens to content hashes, so editing either file can never serve stale assets. For a deliberate redesign, set `GIFTMAS_ALLOW_THEME_CHANGE=1` before building (hashes still update).
+
 ## Deploy to Cloudflare Pages (Git integration)
 
 1. Push this repo to GitHub/GitLab.

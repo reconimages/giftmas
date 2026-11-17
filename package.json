@@ -6,7 +6,7 @@
   "description": "UK Christmas gift guides with Amazon UK affiliate links (tag giftmas00-21). Astro static site for Cloudflare Pages.",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "node scripts/check-theme.mjs && astro build",
     "preview": "astro preview"
   },
   "dependencies": {
